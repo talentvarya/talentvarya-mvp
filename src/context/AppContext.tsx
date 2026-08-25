@@ -35,6 +35,8 @@ import {
   saveDatabaseJob,
   savePromotionalBanner,
 } from '../services/databaseService';
+import { getCurrentTalentUser } from '../services/authService';
+import { supabase } from '../services/supabaseClient';
 
 interface AppContextType {
   userRole: UserRole;
@@ -223,6 +225,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       read: false
     }
   ]);
+
+  useEffect(() => {
+    let active = true;
+
+    const restoreSession = async () => {
+      const account = await getCurrentTalentUser().catch(() => null);
+      if (!active || !account) return;
+      setCurrentUserEmail(account.email);
+      setUserRole(account.role);
+    };
+
+    void restoreSession();
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        setCurrentUserEmail('');
+        setUserRole('guest');
+        setCurrentPage('home');
+      }
+    });
+
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   const showToast = (title: string, message: string, type: NotificationItem['type'] = 'success') => {
     setToastMessage({ title, message, type });

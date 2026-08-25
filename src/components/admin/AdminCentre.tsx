@@ -36,7 +36,7 @@ export const AdminCentre: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [adminOverview, setAdminOverview] = useState<{
-    users: Array<{ id: number; email: string; role: 'candidate' | 'employer'; emailVerified: number; createdAt: string }>;
+    users: Array<{ id: string; email: string; role: 'candidate' | 'employer'; emailVerified: number; createdAt: string }>;
     jobs: Job[];
     documents: UploadedDocumentRecord[];
   }>({ users: [], jobs: [], documents: [] });

@@ -1,6 +1,25 @@
 # TalentVarya — Verified Jobs & ATS MVP
 
-Responsive React/Vite job portal with an Express API, local SQLite development fallback, optional Google Sheets mirroring, protected Admin Centre, email activation test flow and document uploads.
+Responsive React/Vite job portal connected directly to Supabase PostgreSQL, Supabase Auth and private Supabase Storage. The production frontend can be hosted on Vercel without the local Express server.
+
+## Production Supabase setup
+
+The TalentVarya Supabase project already contains secure RLS policies for users, jobs, applications, contact messages, promotional banners and documents. Add these variables to Vercel under Project → Settings → Environment Variables:
+
+```env
+VITE_SUPABASE_URL=your-project-url
+VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+```
+
+Apply them to Production, Preview and Development, then redeploy. Never add a secret key or service-role key to a `VITE_` variable.
+
+## First administrator
+
+1. In Supabase Dashboard, open Authentication → Users → Add user → Create new user.
+2. Enter the administrator email and a temporary password of at least 8 characters.
+3. Open Table Editor → users, find that email, and change `role` from `candidate` to `admin`.
+4. Sign in from TalentVarya using the Admin tab.
+5. Use “Forgot password” on the website whenever a password reset is needed.
 
 ## Implemented rules
 
@@ -26,7 +45,7 @@ The API runs at `http://127.0.0.1:3001`. Uploaded files go to `uploads/`; the SQ
 
 ## Admin login
 
-Use an email included in `TV_ADMIN_EMAILS` and the value of `TV_ADMIN_ACCESS_CODE`. Admin sessions expire after eight hours. Never commit `.env`.
+Admin access now uses Supabase email/password authentication and the protected `users.role = 'admin'` authorization check. The previous local `TV_ADMIN_ACCESS_CODE` flow is no longer used by the production frontend.
 
 ## Google Sheets
 

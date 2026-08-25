@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { BrandLogo } from './BrandLogo';
+import { signOut } from '../../services/authService';
 
 export const Header: React.FC = () => {
   const { 
@@ -76,7 +77,15 @@ export const Header: React.FC = () => {
             </button>
           )}
           {userRole !== 'guest' && (
-            <span className="text-[11px] text-emerald-300 font-semibold capitalize">{userRole} session active</span>
+            <>
+              <span className="text-[11px] text-emerald-300 font-semibold capitalize">{userRole} session active</span>
+              <button
+                onClick={() => void signOut()}
+                className="px-2 py-1 text-[11px] text-slate-300 hover:text-white border border-slate-700 rounded"
+              >
+                Sign out
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -305,8 +314,7 @@ export const Header: React.FC = () => {
                     <div className="border-t border-slate-100 my-1" />
                     <button
                       onClick={() => {
-                        setUserRole('guest');
-                        setCurrentPage('home');
+                        void signOut();
                         setShowUserMenu(false);
                       }}
                       className="w-full text-left px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2"
