@@ -6,7 +6,7 @@ import { sendPasswordReset, signIn, signUp, updatePassword } from '../../service
 import { supabase } from '../../services/supabaseClient';
 
 export const AuthModal: React.FC = () => {
-  const { isAuthModalOpen, setIsAuthModalOpen, authModalRole, setAuthModalRole, setUserRole, setCurrentUserEmail, setCurrentPage, showToast } = useApp();
+  const { isAuthModalOpen, setIsAuthModalOpen, authModalRole, setAuthModalRole, setUserRole, setCurrentUserEmail, setCurrentPage, updateCandidateProfile, showToast } = useApp();
   const [action, setAction] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,13 +30,21 @@ export const AuthModal: React.FC = () => {
 
   if (!isAuthModalOpen) return null;
 
-  const finishLogin = (account: { email: string; role: 'candidate' | 'employer' | 'admin' }) => {
+  const finishLogin = (account: { email: string; role: 'candidate' | 'employer' | 'admin'; fullName: string }) => {
     if (authModalRole === 'admin' && account.role !== 'admin') {
       void supabase.auth.signOut();
       throw new Error('This account does not have administrator permission.');
     }
     setCurrentUserEmail(account.email);
     setUserRole(account.role);
+    if (account.role === 'candidate') {
+      const nameParts = account.fullName.trim().split(/\s+/).filter(Boolean);
+      updateCandidateProfile({
+        firstName: nameParts[0] || account.email.split('@')[0],
+        lastName: nameParts.slice(1).join(' '),
+        email: account.email,
+      });
+    }
     setCurrentPage(account.role === 'admin' ? 'admin-centre' : account.role === 'employer' ? 'employer-dashboard' : 'candidate-dashboard');
     setIsAuthModalOpen(false);
     setPassword('');
