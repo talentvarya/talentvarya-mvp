@@ -138,7 +138,7 @@ export const Header: React.FC = () => {
               onClick={() => setCurrentPage('pricing')}
               className={`hover:text-emerald-600 transition-colors ${currentPage === 'pricing' ? 'text-emerald-600 font-semibold' : ''}`}
             >
-              For Employers
+              Pricing
             </button>
             <button 
               id="nav-help"
