@@ -234,6 +234,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (!active || !account) return;
       setCurrentUserEmail(account.email);
       setUserRole(account.role);
+      if (account.role === 'candidate') {
+        const nameParts = account.fullName.trim().split(/\s+/).filter(Boolean);
+        setCandidateProfile(prev => ({
+          ...prev,
+          firstName: nameParts[0] || account.email.split('@')[0],
+          lastName: nameParts.slice(1).join(' '),
+          email: account.email,
+        }));
+      }
     };
 
     void restoreSession();
