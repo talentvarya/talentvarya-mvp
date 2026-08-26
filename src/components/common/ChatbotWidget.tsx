@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { TalentVaryaEmblem } from './TalentVaryaEmblem';
 import { useApp } from '../../context/AppContext';
+import { supabase } from '../../services/supabaseClient';
 
 interface ChatMessage {
   id: string;
@@ -376,7 +377,7 @@ export const ChatbotWidget: React.FC = () => {
     };
   };
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const text = textToSend || inputText;
     if (!text.trim()) return;
 
@@ -391,18 +392,36 @@ export const ChatbotWidget: React.FC = () => {
     setInputText('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = getAIResponse(text);
+    try {
+      const { data, error } = await supabase.functions.invoke('talentvarya-ai-assistant', {
+        body: { question: text.trim() }
+      });
+
+      if (error) throw error;
+
       const botMsg: ChatMessage = {
         id: `bot-${Date.now()}`,
         sender: 'bot',
-        text: response.text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        actions: response.actions
+        text: data?.answer || (language === 'HI'
+          ? 'माफ़ कीजिए, इस प्रश्न का उत्तर अभी उपलब्ध नहीं है।'
+          : 'Sorry, I do not have an answer for that yet.'),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, botMsg]);
+    } catch (error) {
+      console.error('TalentVarya AI Assistant error:', error);
+      const botMsg: ChatMessage = {
+        id: `bot-error-${Date.now()}`,
+        sender: 'bot',
+        text: language === 'HI'
+          ? 'AI असिस्टेंट अभी उपलब्ध नहीं है। कृपया थोड़ी देर बाद दोबारा कोशिश करें।'
+          : 'The AI Assistant is temporarily unavailable. Please try again shortly.',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, botMsg]);
+    } finally {
       setIsTyping(false);
-    }, 600);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
