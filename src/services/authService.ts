@@ -5,9 +5,10 @@ export interface AuthenticatedTalentUser {
   id: string;
   email: string;
   role: Exclude<UserRole, 'guest'>;
+  fullName: string;
 }
 
-async function loadProfile(userId: string): Promise<AuthenticatedTalentUser> {
+async function loadProfile(userId: string, fullName = ''): Promise<AuthenticatedTalentUser> {
   const { data, error } = await supabase
     .from('users')
     .select('id,email,role')
@@ -15,7 +16,7 @@ async function loadProfile(userId: string): Promise<AuthenticatedTalentUser> {
     .single();
 
   if (error) throw new Error('Your account profile could not be loaded.');
-  return data as AuthenticatedTalentUser;
+  return { ...(data as Omit<AuthenticatedTalentUser, 'fullName'>), fullName };
 }
 
 export async function signIn(email: string, password: string) {
@@ -24,7 +25,7 @@ export async function signIn(email: string, password: string) {
     password,
   });
   if (error || !data.user) throw new Error(error?.message || 'Sign-in failed.');
-  return loadProfile(data.user.id);
+  return loadProfile(data.user.id, String(data.user.user_metadata?.full_name || ''));
 }
 
 export async function signUp(
@@ -41,7 +42,10 @@ export async function signUp(
   if (error) throw new Error(error.message);
   if (!data.user) throw new Error('Account could not be created.');
   if (!data.session) return { profile: null, confirmationRequired: true };
-  return { profile: await loadProfile(data.user.id), confirmationRequired: false };
+  return {
+    profile: await loadProfile(data.user.id, String(data.user.user_metadata?.full_name || fullName.trim())),
+    confirmationRequired: false,
+  };
 }
 
 export async function sendPasswordReset(email: string) {
@@ -60,11 +64,10 @@ export async function updatePassword(password: string) {
 export async function getCurrentTalentUser() {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
-  return loadProfile(data.user.id);
+  return loadProfile(data.user.id, String(data.user.user_metadata?.full_name || ''));
 }
 
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw new Error(error.message);
 }
-
