@@ -1,0 +1,17 @@
+# Talentvarya
+
+> Talentvarya is a hiring platform in India. It connects job seekers with checked employers and gives companies a tool called HireStream to manage hiring.
+
+## What Talentvarya offers
+
+- Free job search and applications for candidates, with no placement fees ever charged to a candidate.
+- Employer checks before a company can post an opening (business and identity verification).
+- HireStream: an applicant tracking tool for employers to post roles, review candidates, and run interviews.
+- A pay-after-joining pricing model for employers, where fees apply only after a hire joins and completes a trial period.
+- Support for common Indian job categories, including software engineering, product, design, data, DevOps, human resources, administration, and sales.
+
+## Key facts
+
+- No recruiter is allowed to charge a candidate for an application, interview, or offer letter on Talentvarya.
+- Employers are checked using company registration and identity verification before their jobs can go live.
+- The platform is aimed at the Indian job market.
